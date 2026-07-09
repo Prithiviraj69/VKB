@@ -92,7 +92,7 @@ class NgoApproverController extends Controller
         if ($status === 'approved') {
             $query->where('status', 'approved');
         } elseif ($status === 'deactivated') {
-            $deactivatedUserIds = User::where('role', 'worker')->where('is_active', false)->pluck('id')->toArray();
+            $deactivatedUserIds = User::whereIn('role', ['worker', 'beneficiary'])->where('is_active', false)->pluck('id')->toArray();
             $query->whereIn('user_id', $deactivatedUserIds);
         } else {
             $query->where(function($q) {

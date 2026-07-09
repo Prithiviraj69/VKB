@@ -92,8 +92,8 @@ class SuperAdminController extends Controller
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
 
-        // Fetch all users with role 'approver', 'verifier', or 'worker'
-        $users = User::whereIn('role', ['approver', 'verifier', 'worker'])->get();
+        // Fetch all users with role 'approver', 'verifier', 'worker', or 'beneficiary'
+        $users = User::whereIn('role', ['approver', 'verifier', 'worker', 'beneficiary'])->get();
 
         return response()->json([
             'success' => true,
@@ -287,7 +287,7 @@ class SuperAdminController extends Controller
         }
 
         // Relational deletion for workers using raw collection queries
-        if ($user->role === 'worker') {
+        if (in_array($user->role, ['worker', 'beneficiary'])) {
             $worker = DB::table('workers')->where('user_id', $user->id)->first();
             if ($worker) {
                 $worker = (array) $worker;

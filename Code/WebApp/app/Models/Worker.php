@@ -90,4 +90,24 @@ class Worker extends Model
 
         return !empty($family) ? $family : $fallbackArray;
     }
+
+    public function documents()
+    {
+        return $this->hasMany(WorkerDocument::class, 'worker_id');
+    }
+
+    public function familyMembers()
+    {
+        return $this->hasMany(WorkerFamily::class, 'worker_id');
+    }
+
+    public function schemeApplications()
+    {
+        return $this->hasMany(SchemeApplication::class, 'worker_id');
+    }
+
+    public function grievances()
+    {
+        return $this->hasMany(Grievance::class, 'worker_id');
+    }
 }

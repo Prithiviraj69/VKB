@@ -159,6 +159,15 @@ class WorkerController extends Controller
                     'dob'      => $member['dob'] ?? null,
                 ]);
             }
+
+            // Sync to workers collection family_members array attribute
+            $otherFamily = array_map(fn($f) => [
+                'name' => $f['name'] ?? '',
+                'relation' => $f['relation'] ?? 'Member',
+                'gender' => $f['gender'] ?? 'male',
+                'age' => isset($f['age']) ? (int)$f['age'] : null,
+            ], $familyData);
+            $worker->update(['family_members' => $otherFamily]);
         }
 
         // Calculate and persist profile score (PHP-side, replaces dropped trigger)
@@ -246,6 +255,15 @@ class WorkerController extends Controller
                         'dob'      => $member['dob'] ?? null,
                     ]);
                 }
+
+                // Sync to workers collection family_members array attribute
+                $otherFamily = array_map(fn($f) => [
+                    'name' => $f['name'] ?? '',
+                    'relation' => $f['relation'] ?? 'Member',
+                    'gender' => $f['gender'] ?? 'male',
+                    'age' => isset($f['age']) ? (int)$f['age'] : null,
+                ], $familyData);
+                $worker->update(['family_members' => $otherFamily]);
             }
         }
 

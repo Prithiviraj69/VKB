@@ -47,7 +47,7 @@ class User extends Authenticatable
     protected static function booted()
     {
         static::creating(function ($user) {
-            if ($user->role === 'beneficiary') {
+            if (in_array($user->role, ['beneficiary', 'worker'])) {
                 return;
             }
             if (!isset($user->needs_password_change)) {
