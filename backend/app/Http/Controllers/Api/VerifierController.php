@@ -124,6 +124,8 @@ class VerifierController extends Controller
             'signature_url' => $worker['signature_url'] ?? '',
             'aadhaar_number' => $worker['aadhaar_number'] ?? 'N/A',
             'father_name' => $worker['father_name'] ?? 'N/A',
+            'verifier_remarks' => $worker['verifier_remarks'] ?? 'N/A',
+            'approver_remarks' => $worker['approver_remarks'] ?? 'N/A',
             'created_at' => $this->formatDate($worker['created_at'] ?? null),
         ];
     }

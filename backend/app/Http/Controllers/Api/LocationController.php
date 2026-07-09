@@ -30,7 +30,7 @@ class LocationController extends Controller
     // GET /api/trades
     public function trades()
     {
-        $trades = Trade::where('is_active', true)->orderBy('name')->get();
+        $trades = Trade::whereIn('is_active', [true, 1])->orderBy('name')->get();
         return response()->json(['success' => true, 'data' => $trades]);
     }
 }

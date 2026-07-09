@@ -286,15 +286,20 @@ class SuperAdminController extends Controller
             return response()->json(['success' => false, 'message' => 'Cannot delete Super Admin account'], 400);
         }
 
-        // Relational deletion for workers
+        // Relational deletion for workers using raw collection queries
         if ($user->role === 'worker') {
-            $worker = $user->worker;
+            $worker = DB::table('workers')->where('user_id', $user->id)->first();
             if ($worker) {
-                // Delete related records
-                $worker->familyMembers()->delete();
-                $worker->documents()->delete();
-                $worker->grievances()->delete();
-                $worker->delete();
+                $worker = (array) $worker;
+                $workerId = $worker['id'] ?? $worker['_id'] ?? null;
+                if ($workerId) {
+                    DB::table('worker_family')->where('worker_id', $workerId)->delete();
+                    DB::table('worker_documents')->where('worker_id', $workerId)->delete();
+                    DB::table('worker_skills')->where('worker_id', $workerId)->delete();
+                    DB::table('scheme_applications')->where('worker_id', $workerId)->delete();
+                    DB::table('grievances')->where('worker_id', $workerId)->delete();
+                }
+                DB::table('workers')->where('user_id', $user->id)->delete();
             }
         }
 

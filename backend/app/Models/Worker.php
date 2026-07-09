@@ -27,7 +27,9 @@ class Worker extends Model
         'installments_paid_count', 'installments_paid_total',
         'is_membership_revived', 'revival_period',
         'employment_status', 'is_bocw_registered', 'bocw_reg_no',
-        'bocw_state_board', 'bocw_reg_date', 'bocw_valid_upto'
+        'bocw_state_board', 'bocw_reg_date', 'bocw_valid_upto',
+        'district', 'state', 'qualification', 'school_institution',
+        'experience_years', 'daily_wage'
     ];
 
     protected $casts = [
@@ -50,38 +52,42 @@ class Worker extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function skills()
+    public static function syncFamilyMembers($workerId, array $familyMembers)
     {
-        return $this->hasMany(WorkerSkill::class);
+        if (empty($workerId)) return;
+
+        // Clear existing family members to avoid duplicates
+        \Illuminate\Support\Facades\DB::table('worker_family')->where('worker_id', (string)$workerId)->delete();
+
+        // Insert new ones
+        foreach ($familyMembers as $member) {
+            \Illuminate\Support\Facades\DB::table('worker_family')->insert([
+                'worker_id' => (string)$workerId,
+                'name' => $member['name'] ?? '',
+                'relation' => $member['relation'] ?? 'Member',
+                'gender' => $member['gender'] ?? 'male',
+                'age' => isset($member['age']) ? (int)$member['age'] : null,
+                'created_at' => now()->toDateTimeString(),
+                'updated_at' => now()->toDateTimeString(),
+            ]);
+        }
     }
 
-    public function documents()
+    public static function getFamilyMembers($workerId, $fallbackArray = [])
     {
-        return $this->hasMany(WorkerDocument::class);
-    }
+        if (empty($workerId)) return $fallbackArray;
 
-    public function grievances()
-    {
-        return $this->hasMany(Grievance::class);
-    }
+        $family = \Illuminate\Support\Facades\DB::table('worker_family')
+            ->where('worker_id', (string)$workerId)
+            ->get(['name', 'relation', 'gender', 'age'])
+            ->map(fn($f) => [
+                'name' => $f->name ?? '',
+                'relation' => $f->relation ?? 'Member',
+                'gender' => $f->gender ?? 'male',
+                'age' => $f->age ?? 0,
+            ])
+            ->toArray();
 
-    public function schemeApplications()
-    {
-        return $this->hasMany(SchemeApplication::class);
-    }
-
-    public function addresses()
-    {
-        return $this->hasMany(WorkerAddress::class);
-    }
-
-    public function bankAccounts()
-    {
-        return $this->hasMany(WorkerBankAccount::class);
-    }
-
-    public function familyMembers()
-    {
-        return $this->hasMany(WorkerFamily::class);
+        return !empty($family) ? $family : $fallbackArray;
     }
 }

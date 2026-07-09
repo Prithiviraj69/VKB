@@ -11,6 +11,7 @@ class Scheme extends Model
         'state_id', 'description', 'benefit_description',
         'max_benefit_amount', 'eligibility_rules', 'required_documents',
         'apply_url', 'api_endpoint', 'is_active',
+        'title', 'url', 'created_by', 'created_by_dept_code'
     ];
 
     protected $casts = [
@@ -19,6 +20,8 @@ class Scheme extends Model
         'required_documents'  => 'array',
         'max_benefit_amount'  => 'decimal:2',
     ];
+
+    protected $appends = ['department_detail'];
 
     public function applications()
     {
@@ -33,5 +36,16 @@ class Scheme extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function getDepartmentDetailAttribute()
+    {
+        $code = $this->created_by_dept_code;
+        if (!$code) {
+            return null;
+        }
+        return \App\Models\Department::where('department_code', (string)$code)
+            ->orWhere('department_code', (int)$code)
+            ->first();
     }
 }
